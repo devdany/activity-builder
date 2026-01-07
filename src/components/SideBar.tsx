@@ -1,44 +1,69 @@
+import { useMemo } from "react";
 import type {
   ActivityBuilderStep,
   ActivityBuilderStepKey,
 } from "@/ActivityBuilder.types";
+import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuilder";
+import type { ActivityDraft } from "@/contexts/activity-builder/context";
 
-const STEPS: ActivityBuilderStep[] = [
+function isStepCompleted(
+  step: ActivityBuilderStepKey,
+  draft: ActivityDraft
+): boolean {
+  switch (step) {
+    case "2-1":
+      return draft.name.trim().length > 0;
+
+    case "2-2":
+      return draft.category !== null;
+
+    case "2-3":
+      return draft.tier !== null;
+
+    case "2-4":
+      return draft.description.trim().length >= 150;
+
+    case "2-5":
+      return draft.hoursPerWeek !== null;
+
+    case "3-1":
+      return true;
+
+    default:
+      return false;
+  }
+}
+
+const STEP_DEFS: Omit<ActivityBuilderStep, "enabled">[] = [
   {
     step: "2-1",
     title: "Activity Title",
     description: "Enter the name of your activity",
-    enabled: true,
   },
   {
     step: "2-2",
     title: "Activity Type",
     description: "Select the activity category",
-    enabled: true,
   },
   {
     step: "2-3",
     title: "Activity Tier",
     description: "Choose the level of recognition",
-    enabled: true,
   },
   {
     step: "2-4",
     title: "Activity Description",
     description: "Describe what you did (min 150 chars)",
-    enabled: true,
   },
   {
     step: "2-5",
     title: "Time & Leadership",
     description: "Hours per week and leadership role",
-    enabled: true,
   },
   {
     step: "3-1",
     title: "Activity List",
     description: "Review, edit, or remove your activities",
-    enabled: true,
   },
 ];
 
@@ -57,6 +82,21 @@ export function ActivitySidebar({
   currentStep,
   onStepClick,
 }: ActivitySidebarProps) {
+  const { draft } = useActivityBuilder();
+
+  const steps = useMemo<ActivityBuilderStep[]>(() => {
+    return STEP_DEFS.map((stepDef, index) => {
+      const enabled = STEP_DEFS.slice(0, index).every((prev) =>
+        isStepCompleted(prev.step, draft)
+      );
+
+      return {
+        ...stepDef,
+        enabled,
+      };
+    });
+  }, [draft]);
+
   return (
     <>
       {isOpen && (
@@ -80,9 +120,9 @@ export function ActivitySidebar({
         role="complementary"
         aria-label="Activity Builder steps"
       >
-        <nav className="px-3 py-4 overflow-y-auto" aria-label="Builder steps">
+        <nav className="px-3 py-4 overflow-y-auto">
           <ol className="space-y-1">
-            {STEPS.map(({ step, title, description, enabled }) => {
+            {steps.map(({ step, title, description, enabled }) => {
               const isActive = step === currentStep;
 
               return (

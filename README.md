@@ -33,7 +33,7 @@ npm install -g pnpm
 pnpm install
 ```
 
-## 2. 개발 서버 싫행 방법
+## 2. 프론트엔드 개발 서버 실행 방법
 
 아래 명령어를 실행하면 개발서버가 실행됩니다.
 
@@ -47,7 +47,79 @@ pnpm dev
 http://localhost:5173
 ```
 
-## 3. 프로젝트 요구사항
+## 3. 백엔드 개발 서버 실행 방법
+
+백엔드는 Express + TypeScript 기반의 간단한 API 서버이며,  
+SQLite를 로컬 파일 DB로 사용합니다.
+
+---
+
+### 디렉토리 구조
+
+백엔드 서버는 프론트엔드와 분리되어 `server/` 디렉토리에서 실행됩니다.
+
+activity-builder/
+├─ src/ # Frontend (React)
+├─ server/
+│ ├─ index.ts # Express entry
+│ ├─ db/
+│ │ └─ index.ts # SQLite setup
+│ ├─ routes/
+│ │ └─ activities.ts
+│ ├─ activity.db # SQLite database (자동 생성)
+│ └─ package.json
+
+---
+
+### 백엔드 의존성 설치
+
+먼저 `server` 디렉토리로 이동한 뒤 의존성을 설치합니다.
+
+```bash
+cd server
+pnpm install
+```
+
+백엔드 개발 서버 실행
+
+아래 명령어를 실행하면 Express 개발 서버가 실행됩니다.
+
+```
+pnpm dev
+```
+
+### SQLite 관련 주의사항 (pnpm 사용 시)
+
+이 프로젝트에서는 SQLite 라이브러리로 `better-sqlite3`를 사용합니다.  
+`better-sqlite3`는 네이티브 바이너리를 포함하고 있으며, pnpm의 보안 정책으로 인해  
+기본적으로 빌드 스크립트 실행이 차단될 수 있습니다.
+
+이 경우 아래와 같은 에러가 발생합니다.
+
+```
+Error: Could not locate the bindings file
+```
+
+---
+
+#### 해결 방법: pnpm 네이티브 빌드 승인
+
+pnpm에서는 네이티브 모듈의 빌드를 명시적으로 승인해야 합니다.  
+아래 명령어를 실행하세요.
+
+```bash
+pnpm approve-builds
+```
+
+```
+rm -rf node_modules
+pnpm install
+pnpm approve-builds
+```
+
+참고: https://github.com/WiseLibs/better-sqlite3/issues/146
+
+## 4. 프로젝트 요구사항
 
 ### 과제 목표
 

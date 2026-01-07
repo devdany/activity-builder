@@ -1,7 +1,12 @@
 import { ActivityBuilder } from "@/components/ActivityBuilder";
+import { ActivityBuilderProvider } from "./contexts/activity-builder/provider";
 
 function App() {
-  return <ActivityBuilder isDark />;
+  return (
+    <ActivityBuilderProvider>
+      <ActivityBuilder isDark />
+    </ActivityBuilderProvider>
+  );
 }
 
 export default App;
