@@ -64,16 +64,32 @@ function validateDescription(
   value: unknown,
   { required }: RequiredOption
 ): string | undefined {
-  if (value === undefined) {
-    if (required) throw new Error("description is required");
+  if (value === undefined || value === null) {
+    if (required) {
+      throw new Error("description is required");
+    }
     return;
   }
 
-  if (typeof value !== "string" || value.trim().length < 150) {
-    throw new Error("description must be at least 150 characters");
+  if (typeof value !== "string") {
+    throw new Error("description must be a string");
   }
 
-  return value.trim();
+  const trimmed = value.trim();
+  const length = trimmed.length;
+
+  if (length === 0) {
+    if (required) {
+      throw new Error("description is required");
+    }
+    return;
+  }
+
+  if (length > 150) {
+    throw new Error("description must be 150 characters or fewer");
+  }
+
+  return trimmed;
 }
 
 function validateHoursPerWeek(

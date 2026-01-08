@@ -27,6 +27,7 @@ export function ActivityTierStep({
   const { draft, setDraftTier } = useActivityBuilder();
   const [tier, setTier] = useState<ActivityTier | null>(draft.tier);
 
+  const canContinue = tier !== null;
   return (
     <>
       <Card
@@ -104,7 +105,7 @@ export function ActivityTierStep({
 
       <ActivityStepActions
         isDark={isDark}
-        continueDisabled={!tier}
+        continueDisabled={!canContinue}
         onClickContinue={() => {
           if (tier) {
             setDraftTier(tier);

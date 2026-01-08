@@ -6,7 +6,7 @@ import { PenTool, Lightbulb, CircleCheck } from "lucide-react";
 import { ActivityStepActions } from "@/components/NavigationButtons";
 import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuilder";
 
-const MIN_DESC_LENGTH = 150;
+const MAX_DESC_LENGTH = 150;
 
 export function ActivityDescriptionStep({
   isDark,
@@ -19,6 +19,11 @@ export function ActivityDescriptionStep({
 }) {
   const { draft, setDraftDescription } = useActivityBuilder();
   const [description, setDescription] = useState<string>(draft.description);
+
+  const length = description.length;
+  const isEmpty = description.trim().length === 0;
+  const isTooLong = length > MAX_DESC_LENGTH;
+  const canContinue = !isEmpty && !isTooLong;
 
   return (
     <>
@@ -47,7 +52,7 @@ export function ActivityDescriptionStep({
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Description (required, minimum 150 characters)
+              Description (required, maximum 150 characters)
             </label>
 
             <Textarea
@@ -66,14 +71,17 @@ export function ActivityDescriptionStep({
             />
 
             <div className="flex justify-between items-center text-xs mt-1">
-              <span className={isDark ? "text-gray-400" : "text-gray-500"}>
-                {Math.max(MIN_DESC_LENGTH - description.length, 0)} more chars
-                for minimum
+              <span
+                className={`font-medium ${
+                  isTooLong ? "text-red-500" : "invisible"
+                }`}
+              >
+                Exceeds 150 characters
               </span>
 
               <span
                 className={`font-medium ${
-                  description.length < MIN_DESC_LENGTH
+                  description.length > MAX_DESC_LENGTH
                     ? "text-yellow-500"
                     : "text-green-500"
                 }`}
@@ -186,7 +194,7 @@ export function ActivityDescriptionStep({
 
       <ActivityStepActions
         isDark={isDark}
-        continueDisabled={description.length < MIN_DESC_LENGTH}
+        continueDisabled={!canContinue}
         onClickContinue={() => {
           setDraftDescription(description);
           onClickContinue();

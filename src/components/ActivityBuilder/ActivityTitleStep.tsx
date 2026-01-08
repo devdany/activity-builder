@@ -17,6 +17,8 @@ export function ActivityTitleStep({
   const { draft, setDraftName } = useActivityBuilder();
   const [name, setName] = useState<string>(draft.name);
 
+  const nameTrim = name.trim();
+  const canContinue = nameTrim.length > 0 && nameTrim.length <= 50;
   return (
     <>
       <Card
@@ -63,7 +65,7 @@ export function ActivityTitleStep({
 
       <ActivityStepActions
         isDark={isDark}
-        continueDisabled={!name.trim()}
+        continueDisabled={!canContinue}
         onClickContinue={() => {
           setDraftName(name);
           onClickContinue();

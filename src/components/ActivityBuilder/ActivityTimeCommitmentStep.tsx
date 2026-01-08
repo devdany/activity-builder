@@ -6,27 +6,105 @@ import { TrendingUp, Lightbulb } from "lucide-react";
 import { ActivityStepActions } from "@/components/NavigationButtons";
 import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuilder";
 
+import type { ActivityBuilderStepKey } from "@/ActivityBuilder.types";
+import { api } from "@/lib/api";
+
 export function ActivityTimeCommitmentStep({
   isDark,
-  onClickContinue,
+  onSubmitSuccess,
+  onSubmitFail,
   onClickBack,
 }: {
   isDark: boolean;
-  onClickContinue: () => void;
+  onSubmitSuccess: () => void;
+  onSubmitFail: (step: ActivityBuilderStepKey) => void;
   onClickBack: () => void;
 }) {
-  const { draft, setDraftHoursPerWeek, setDraftIsLeadership } =
+  const { draft, setDraftHoursPerWeek, setDraftIsLeadership, reset } =
     useActivityBuilder();
-  const [hoursPerWeek, setHoursPerWeek] = useState<string>(
+
+  const [hoursPerWeek, setHoursPerWeek] = useState(
     draft.hoursPerWeek === null ? "" : String(draft.hoursPerWeek)
   );
-  const [isLeadership, setIsLeadership] = useState<boolean>(draft.isLeadership);
+  const [isLeadership, setIsLeadership] = useState(draft.isLeadership);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isValidHours =
+  const canSubmit =
     hoursPerWeek !== "" &&
     Number(hoursPerWeek) >= 0 &&
     Number(hoursPerWeek) <= 40;
 
+  async function handleSubmit() {
+    const hours = Number(hoursPerWeek);
+
+    setDraftHoursPerWeek(hours);
+    setDraftIsLeadership(isLeadership);
+
+    const nextDraft = {
+      ...draft,
+      hoursPerWeek: hours,
+      isLeadership,
+    };
+
+    if (!nextDraft.name.trim()) {
+      alert("Activity name is required.");
+      onSubmitFail("2-1");
+      return;
+    }
+
+    if (nextDraft.name.trim().length > 50) {
+      alert("Activity name must be 50 characters or less.");
+      onSubmitFail("2-1");
+      return;
+    }
+
+    if (!nextDraft.category) {
+      alert("Please select an activity category.");
+      onSubmitFail("2-2");
+      return;
+    }
+
+    if (!nextDraft.tier) {
+      alert("Please select an activity tier.");
+      onSubmitFail("2-3");
+      return;
+    }
+
+    if (!nextDraft.description.trim()) {
+      alert("Activity description is required.");
+      onSubmitFail("2-4");
+      return;
+    }
+
+    if (nextDraft.description.length > 150) {
+      alert("Activity description must be 150 characters or less.");
+      onSubmitFail("2-4");
+      return;
+    }
+
+    if (
+      nextDraft.hoursPerWeek === null ||
+      nextDraft.hoursPerWeek < 0 ||
+      nextDraft.hoursPerWeek > 40
+    ) {
+      alert("Hours per week must be a number between 0 and 40.");
+      onSubmitFail("2-5");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      await api.post("/activities", nextDraft);
+      reset();
+      onSubmitSuccess();
+    } catch (e) {
+      console.error(e);
+      alert("save fail");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
   return (
     <>
       <Card
@@ -48,7 +126,6 @@ export function ActivityTimeCommitmentStep({
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Hours per week */}
           <div className="space-y-2">
             <label
               className={`text-sm font-medium ${
@@ -62,17 +139,10 @@ export function ActivityTimeCommitmentStep({
               value={hoursPerWeek}
               onChange={(e) => {
                 const raw = e.target.value;
-
-                if (raw === "") {
-                  setHoursPerWeek("");
-                  return;
-                }
-
+                if (raw === "") return setHoursPerWeek("");
                 if (!/^\d+$/.test(raw)) return;
-
                 const v = Number(raw);
                 if (v < 0 || v > 40) return;
-
                 setHoursPerWeek(raw);
               }}
               placeholder="e.g., 5"
@@ -84,7 +154,6 @@ export function ActivityTimeCommitmentStep({
             />
           </div>
 
-          {/* Leadership */}
           <div className="flex items-start gap-3">
             <Checkbox
               checked={isLeadership}
@@ -103,12 +172,11 @@ export function ActivityTimeCommitmentStep({
                   isDark ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                Check if you held a leadership role in this activity
+                Check if you held a leadership role
               </p>
             </div>
           </div>
 
-          {/* Tip */}
           <div
             className={`rounded-lg border p-4 ${
               isDark
@@ -123,8 +191,7 @@ export function ActivityTimeCommitmentStep({
                   isDark ? "text-yellow-300" : "text-yellow-700"
                 }`}
               >
-                Leadership roles and higher time commitment increase your
-                overall impact.
+                Leadership and higher time commitment increase impact.
               </p>
             </div>
           </div>
@@ -133,25 +200,10 @@ export function ActivityTimeCommitmentStep({
 
       <ActivityStepActions
         isDark={isDark}
-        continueDisabled={!isValidHours}
+        continueDisabled={!canSubmit || isSubmitting}
         continueButtonText="Submit"
-        onClickContinue={() => {
-          if (hoursPerWeek) {
-            setDraftHoursPerWeek(Number(hoursPerWeek));
-          }
-
-          setDraftIsLeadership(isLeadership);
-
-          // TODO: 저장 api 호출
-          onClickContinue();
-        }}
-        onClickBack={() => {
-          setHoursPerWeek(
-            draft.hoursPerWeek === null ? "" : String(draft.hoursPerWeek)
-          );
-          setIsLeadership(draft.isLeadership);
-          onClickBack();
-        }}
+        onClickContinue={handleSubmit}
+        onClickBack={onClickBack}
       />
     </>
   );

@@ -21,7 +21,7 @@ function isStepCompleted(
       return draft.tier !== null;
 
     case "2-4":
-      return draft.description.trim().length >= 150;
+      return draft.description.trim().length > 0;
 
     case "2-5":
       return draft.hoursPerWeek !== null;
@@ -53,7 +53,7 @@ const STEP_DEFS: Omit<ActivityBuilderStep, "enabled">[] = [
   {
     step: "2-4",
     title: "Activity Description",
-    description: "Describe what you did (min 150 chars)",
+    description: "Describe what you did",
   },
   {
     step: "2-5",
@@ -86,6 +86,13 @@ export function ActivitySidebar({
 
   const steps = useMemo<ActivityBuilderStep[]>(() => {
     return STEP_DEFS.map((stepDef, index) => {
+      if (stepDef.step === "3-1") {
+        return {
+          ...stepDef,
+          enabled: true,
+        };
+      }
+
       const enabled = STEP_DEFS.slice(0, index).every((prev) =>
         isStepCompleted(prev.step, draft)
       );

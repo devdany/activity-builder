@@ -109,7 +109,10 @@ router.put("/:id", validateUpdateActivity, (req, res) => {
     .map((k) => `${k} = ?`)
     .join(", ");
 
-  const values = Object.values(updates);
+  const values = Object.values(updates).map((v) => {
+    if (typeof v === "boolean") return v ? 1 : 0;
+    return v;
+  });
 
   const result = db
     .prepare(
@@ -128,7 +131,34 @@ router.put("/:id", validateUpdateActivity, (req, res) => {
     });
   }
 
-  return res.json({ success: true });
+  const row = db
+    .prepare<[string], ActivityRow>(
+      `
+      SELECT
+        id,
+        name,
+        category,
+        tier,
+        description,
+        hoursPerWeek,
+        isLeadership,
+        createdAt
+      FROM activities
+      WHERE id = ?
+      `
+    )
+    .get(id);
+
+  if (!row) {
+    return res.status(500).json({
+      error: "UnexpectedError",
+      message: "updated activity not found",
+    });
+  }
+
+  const activity = mapRowToActivity(row);
+
+  return res.json(activity);
 });
 
 router.delete("/:id", (req, res) => {

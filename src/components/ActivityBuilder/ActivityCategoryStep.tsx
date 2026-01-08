@@ -30,6 +30,8 @@ export function ActivityCategoryStep({
     draft.category
   );
 
+  const canContinue = category !== null;
+
   return (
     <>
       <Card
@@ -124,7 +126,7 @@ export function ActivityCategoryStep({
 
       <ActivityStepActions
         isDark={isDark}
-        continueDisabled={!category}
+        continueDisabled={!canContinue}
         onClickContinue={() => {
           if (category) {
             setDraftCategory(category);

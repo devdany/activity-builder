@@ -3,6 +3,11 @@
 본 프로젝트는 Edmission 대학 지원 플랫폼의 Activity Builder 기능 일부를 구현하는 과제입니다.  
 학생이 비교과 활동(Extracurricular Activities)을 입력하고, 활동의 티어와 조건에 따라 영향도 점수를 계산하는 UI를 제공합니다.
 
+과제 문서로부터 받은 참조링크에 구현된 내용과, 과제문서에 적힌 내용들을 적당히 조합해 요구사항의 맥락을 추측하여 작업합니다.
+가급적 가볍게 작업합니다. react-query, redux등은 굳이 사용하지 않습니다.
+
+서버는 동일한 레포내에 node + express로 가볍게 작업합니다.
+
 ---
 
 ## 1. 프로젝트 세팅
@@ -13,12 +18,11 @@
 - Vite
 - Tailwind CSS
 - shadcn/ui
-- ESLint + Prettier
 - pnpm
 
 ### 로컬 환경 요구사항
 
-- Node.js 18 이상
+- Node.js 20 이상
 - pnpm
 
 pnpm이 설치되어 있지 않은 경우 아래 명령어로 설치합니다.
@@ -49,7 +53,7 @@ http://localhost:5173
 
 ## 3. 백엔드 개발 서버 실행 방법
 
-백엔드는 Express + TypeScript 기반의 간단한 API 서버이며,  
+백엔드는 Node.js Express + TypeScript 기반의 간단한 API 서버이며,  
 SQLite를 로컬 파일 DB로 사용합니다.
 
 ---
@@ -57,17 +61,6 @@ SQLite를 로컬 파일 DB로 사용합니다.
 ### 디렉토리 구조
 
 백엔드 서버는 프론트엔드와 분리되어 `server/` 디렉토리에서 실행됩니다.
-
-activity-builder/
-├─ src/ # Frontend (React)
-├─ server/
-│ ├─ index.ts # Express entry
-│ ├─ db/
-│ │ └─ index.ts # SQLite setup
-│ ├─ routes/
-│ │ └─ activities.ts
-│ ├─ activity.db # SQLite database (자동 생성)
-│ └─ package.json
 
 ---
 

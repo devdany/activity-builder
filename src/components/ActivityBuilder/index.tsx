@@ -108,8 +108,11 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
         return (
           <ActivityTimeCommitmentStep
             isDark={isDark}
-            onClickContinue={() => {
+            onSubmitSuccess={() => {
               setStep("3-1");
+            }}
+            onSubmitFail={(step) => {
+              setStep(step);
             }}
             onClickBack={() => {
               setStep("2-4");
@@ -118,7 +121,7 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
         );
 
       case "3-1":
-        return <ActivitySummaryStep isDark={isDark} activities={[]} />;
+        return <ActivitySummaryStep isDark={isDark} />;
 
       default:
         return null;
