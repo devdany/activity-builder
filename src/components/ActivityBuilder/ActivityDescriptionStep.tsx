@@ -25,6 +25,24 @@ export function ActivityDescriptionStep({
   const isTooLong = length > MAX_DESC_LENGTH;
   const canContinue = !isEmpty && !isTooLong;
 
+  const ratio = length / MAX_DESC_LENGTH;
+
+  const level =
+    ratio >= 1
+      ? "danger"
+      : ratio >= 0.9
+        ? "warning-strong"
+        : ratio >= 0.75
+          ? "warning"
+          : "safe";
+
+  const counterColor = {
+    safe: isDark ? "text-green-400" : "text-green-600",
+    warning: isDark ? "text-yellow-400" : "text-yellow-600",
+    "warning-strong": isDark ? "text-orange-400" : "text-orange-600",
+    danger: "text-red-500",
+  }[level];
+
   return (
     <>
       <Card
@@ -61,11 +79,22 @@ export function ActivityDescriptionStep({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What specific tasks did you perform? Include concrete actions, numbers, and outcomes."
               className={`
-                mt-2 resize-none
+                mt-2 resize-none transition-colors
                 ${
                   isDark
-                    ? "bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400"
-                    : "bg-gray-50 border-gray-300 text-gray-900"
+                    ? "bg-gray-700 text-gray-200 placeholder-gray-400"
+                    : "bg-gray-50 text-gray-900"
+                }
+                ${
+                  level === "danger"
+                    ? "border-red-500"
+                    : level === "warning-strong"
+                      ? "border-orange-400"
+                      : level === "warning"
+                        ? "border-yellow-400"
+                        : isDark
+                          ? "border-gray-600"
+                          : "border-gray-300"
                 }
               `}
             />
@@ -79,13 +108,7 @@ export function ActivityDescriptionStep({
                 Exceeds 150 characters
               </span>
 
-              <span
-                className={`font-medium ${
-                  description.length > MAX_DESC_LENGTH
-                    ? "text-yellow-500"
-                    : "text-green-500"
-                }`}
-              >
+              <span className={`font-medium ${counterColor}`}>
                 {description.length}
               </span>
             </div>

@@ -125,7 +125,7 @@ pnpm approve-builds
 
 #### 1. 입력 폼 (Form Fields)
 
-- **Activity name**
+- **Activity name** (필수 입력)
   - 필수 입력
   - 최대 50자
 - **Category** (필수 선택)
@@ -141,11 +141,11 @@ pnpm approve-builds
   - State
   - National
   - International
-- **Description**
+- **Description** (필수 입력)
   - 필수 입력
   - 최대 150자
   - 실시간 글자 수 카운터 표시
-- **Hours per week**
+- **Hours per week** (필수 입력)
   - 숫자 입력
   - 0 ~ 40 범위 제한
 - **Leadership position**
