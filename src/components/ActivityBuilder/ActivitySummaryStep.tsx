@@ -97,7 +97,7 @@ export function ActivitySummaryStep() {
       <div
         className={`
           space-y-4
-          max-h-[60vh]
+          max-h-[80vh]
           overflow-y-auto
           pr-1
         `}

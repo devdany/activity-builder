@@ -9,6 +9,7 @@ import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuild
 import type { ActivityBuilderStepKey } from "@/ActivityBuilder.types";
 import { api } from "@/lib/api";
 import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
+import type { ActivityDraft } from "@/contexts/activity-builder/context";
 
 export function ActivityTimeCommitmentStep({
   onSubmitSuccess,
@@ -29,78 +30,98 @@ export function ActivityTimeCommitmentStep({
   const [isLeadership, setIsLeadership] = useState(draft.isLeadership);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const canSubmit =
-    hoursPerWeek !== "" &&
-    Number(hoursPerWeek) >= 0 &&
-    Number(hoursPerWeek) <= 40;
+  function validateFinalDraft(
+    draft: ActivityDraft
+  ):
+    | { valid: true }
+    | { valid: false; step: ActivityBuilderStepKey; message: string } {
+    if (!draft.name.trim())
+      return {
+        valid: false,
+        step: "2-1",
+        message: "Activity name is required.",
+      };
 
-  async function handleSubmit() {
-    const hours = Number(hoursPerWeek);
+    if (draft.name.trim().length > 50)
+      return {
+        valid: false,
+        step: "2-1",
+        message: "Activity name must be 50 characters or less.",
+      };
 
-    setDraftHoursPerWeek(hours);
-    setDraftIsLeadership(isLeadership);
+    if (!draft.category)
+      return {
+        valid: false,
+        step: "2-2",
+        message: "Please select an activity category.",
+      };
 
-    const nextDraft = {
-      ...draft,
-      hoursPerWeek: hours,
-      isLeadership,
-    };
+    if (!draft.tier)
+      return {
+        valid: false,
+        step: "2-3",
+        message: "Please select an activity tier.",
+      };
 
-    if (!nextDraft.name.trim()) {
-      alert("Activity name is required.");
-      onSubmitFail("2-1");
-      return;
-    }
+    if (!draft.description.trim())
+      return {
+        valid: false,
+        step: "2-4",
+        message: "Activity description is required.",
+      };
 
-    if (nextDraft.name.trim().length > 50) {
-      alert("Activity name must be 50 characters or less.");
-      onSubmitFail("2-1");
-      return;
-    }
-
-    if (!nextDraft.category) {
-      alert("Please select an activity category.");
-      onSubmitFail("2-2");
-      return;
-    }
-
-    if (!nextDraft.tier) {
-      alert("Please select an activity tier.");
-      onSubmitFail("2-3");
-      return;
-    }
-
-    if (!nextDraft.description.trim()) {
-      alert("Activity description is required.");
-      onSubmitFail("2-4");
-      return;
-    }
-
-    if (nextDraft.description.length > 150) {
-      alert("Activity description must be 150 characters or less.");
-      onSubmitFail("2-4");
-      return;
-    }
+    if (draft.description.length > 150)
+      return {
+        valid: false,
+        step: "2-4",
+        message: "Activity description must be 150 characters or less.",
+      };
 
     if (
-      nextDraft.hoursPerWeek === null ||
-      nextDraft.hoursPerWeek < 0 ||
-      nextDraft.hoursPerWeek > 40
-    ) {
-      alert("Hours per week must be a number between 0 and 40.");
-      onSubmitFail("2-5");
+      draft.hoursPerWeek === null ||
+      draft.hoursPerWeek < 0 ||
+      draft.hoursPerWeek > 40
+    )
+      return {
+        valid: false,
+        step: "2-5",
+        message: "Hours per week must be between 0 and 40.",
+      };
+
+    return { valid: true };
+  }
+
+  const hours = hoursPerWeek === "" ? null : Number(hoursPerWeek);
+
+  const nextDraft = {
+    ...draft,
+    hoursPerWeek: hours,
+    isLeadership,
+  };
+
+  const canSubmit = validateFinalDraft(nextDraft).valid;
+
+  async function handleSubmit() {
+    const validation = validateFinalDraft(nextDraft);
+
+    if (!validation.valid) {
+      alert(validation.message);
+      onSubmitFail(validation.step);
       return;
     }
 
     try {
       setIsSubmitting(true);
 
+      setDraftHoursPerWeek(nextDraft.hoursPerWeek!);
+      setDraftIsLeadership(nextDraft.isLeadership);
+
       await api.post("/activities", nextDraft);
       reset();
       onSubmitSuccess();
     } catch (e) {
       console.error(e);
-      alert("save fail");
+      alert("Save failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -95,28 +95,28 @@ export function ActivityBuilder() {
     >
       <header
         className={`
-    sticky top-0 z-30
-    flex items-center justify-between
-    h-12 px-4 sm:h-14
-    border-b
-    transition-colors
-    ${
-      isDark
-        ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-gray-700"
-        : "bg-gradient-to-r from-white via-gray-50 to-white border-gray-200"
-    }
-  `}
+          sticky top-0 z-30
+          flex items-center justify-between
+          h-12 px-4 sm:h-14
+          border-b
+          transition-colors
+          ${
+            isDark
+              ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-gray-700"
+              : "bg-gradient-to-r from-white via-gray-50 to-white border-gray-200"
+          }
+        `}
       >
         <div className="flex items-center min-w-0">
           <button
             className={`sm:hidden mr-2 p-2 rounded transition-colors
-        ${
-          isDark
-            ? "text-gray-300 hover:text-white hover:bg-gray-800"
-            : "text-gray-600 hover:text-black hover:bg-gray-100"
-        }
-        focus:outline-none focus:ring-2 focus:ring-blue-500
-      `}
+              ${
+                isDark
+                  ? "text-gray-300 hover:text-white hover:bg-gray-800"
+                  : "text-gray-600 hover:text-black hover:bg-gray-100"
+              }
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            `}
             aria-label="Open steps menu"
             onClick={() => {
               setIsSidebarOpen(!isSidebarOpen);
@@ -139,14 +139,14 @@ export function ActivityBuilder() {
             onClick={toggleDarkMode}
             aria-label="Toggle dark mode"
             className={`
-        p-2 rounded-full transition-all
-        ${
-          isDark
-            ? "text-yellow-300 hover:bg-gray-700"
-            : "text-gray-600 hover:bg-gray-100"
-        }
-        focus:outline-none focus:ring-2 focus:ring-blue-500
-      `}
+              p-2 rounded-full transition-all
+              ${
+                isDark
+                  ? "text-yellow-300 hover:bg-gray-700"
+                  : "text-gray-600 hover:bg-gray-100"
+              }
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            `}
           >
             {isDark ? "☀️" : "🌙"}
           </button>
