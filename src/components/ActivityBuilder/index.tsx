@@ -107,7 +107,6 @@ export function ActivityBuilder() {
     }
   `}
       >
-        {/* 좌측 영역 */}
         <div className="flex items-center min-w-0">
           <button
             className={`sm:hidden mr-2 p-2 rounded transition-colors
@@ -135,7 +134,6 @@ export function ActivityBuilder() {
           </h1>
         </div>
 
-        {/* 우측 영역 – 다크모드 토글 */}
         <div className="flex items-center gap-2">
           <button
             onClick={toggleDarkMode}
