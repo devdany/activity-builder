@@ -1,7 +1,5 @@
 import { useMemo, useState } from "react";
 
-import { Badge } from "../ui/badge";
-
 import { ActivitySidebar } from "@/components/SideBar";
 import type { ActivityBuilderStepKey } from "@/ActivityBuilder.types";
 
@@ -12,53 +10,20 @@ import { ActivityDescriptionStep } from "./ActivityDescriptionStep";
 import { ActivityTimeCommitmentStep } from "./ActivityTimeCommitmentStep";
 import { ActivitySummaryStep } from "./ActivitySummaryStep";
 import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuilder";
+import { ImpactBadge } from "../ImpactBadge";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
-interface ActivityBuilderProps {
-  isDark: boolean;
-}
-
-export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
+export function ActivityBuilder() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isDark, toggleDarkMode } = useDarkMode();
   const { impactScore } = useActivityBuilder();
   const [step, setStep] = useState<ActivityBuilderStepKey>("2-1");
-
-  const impactBadge = useMemo(() => {
-    if (impactScore >= 7) {
-      return {
-        label: "Exceptional Impact",
-        color: isDark
-          ? "bg-purple-900/30 text-purple-300"
-          : "bg-purple-100 text-purple-700",
-      };
-    }
-    if (impactScore >= 5) {
-      return {
-        label: "High Impact",
-        color: isDark
-          ? "bg-green-900/30 text-green-300"
-          : "bg-green-100 text-green-700",
-      };
-    }
-    if (impactScore >= 3) {
-      return {
-        label: "Medium Impact",
-        color: isDark
-          ? "bg-yellow-900/30 text-yellow-300"
-          : "bg-yellow-100 text-yellow-700",
-      };
-    }
-    return {
-      label: "Low Impact",
-      color: isDark ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700",
-    };
-  }, [impactScore, isDark]);
 
   const stepContent = useMemo(() => {
     switch (step) {
       case "2-1":
         return (
           <ActivityTitleStep
-            isDark={isDark}
             onClickContinue={() => {
               setStep("2-2");
             }}
@@ -68,7 +33,6 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
       case "2-2":
         return (
           <ActivityCategoryStep
-            isDark={isDark}
             onClickContinue={() => {
               setStep("2-3");
             }}
@@ -81,7 +45,6 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
       case "2-3":
         return (
           <ActivityTierStep
-            isDark={isDark}
             onClickContinue={() => {
               setStep("2-4");
             }}
@@ -94,7 +57,6 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
       case "2-4":
         return (
           <ActivityDescriptionStep
-            isDark={isDark}
             onClickContinue={() => {
               setStep("2-5");
             }}
@@ -107,7 +69,6 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
       case "2-5":
         return (
           <ActivityTimeCommitmentStep
-            isDark={isDark}
             onSubmitSuccess={() => {
               setStep("3-1");
             }}
@@ -121,29 +82,42 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
         );
 
       case "3-1":
-        return <ActivitySummaryStep isDark={isDark} />;
+        return <ActivitySummaryStep />;
 
       default:
         return null;
     }
-  }, [step, isDark]);
+  }, [step]);
 
   return (
     <div
       className={`min-h-screen ${isDark ? "bg-gray-900 text-white" : "bg-gray-50 text-black"}`}
     >
       <header
-        className={`sticky top-0 z-30 flex items-center justify-between h-12 px-4 border-b ${
-          isDark ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"
-        } sm:h-14`}
+        className={`
+    sticky top-0 z-30
+    flex items-center justify-between
+    h-12 px-4 sm:h-14
+    border-b
+    transition-colors
+    ${
+      isDark
+        ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-gray-700"
+        : "bg-gradient-to-r from-white via-gray-50 to-white border-gray-200"
+    }
+  `}
       >
+        {/* 좌측 영역 */}
         <div className="flex items-center min-w-0">
           <button
-            className={`sm:hidden mr-2 p-2 rounded ${
-              isDark
-                ? "text-gray-300 hover:text-white"
-                : "text-gray-600 hover:text-black"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            className={`sm:hidden mr-2 p-2 rounded transition-colors
+        ${
+          isDark
+            ? "text-gray-300 hover:text-white hover:bg-gray-800"
+            : "text-gray-600 hover:text-black hover:bg-gray-100"
+        }
+        focus:outline-none focus:ring-2 focus:ring-blue-500
+      `}
             aria-label="Open steps menu"
             onClick={() => {
               setIsSidebarOpen(!isSidebarOpen);
@@ -152,14 +126,36 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
             ☰
           </button>
 
-          <h1 className="text-sm font-semibold sm:text-base truncate">
+          <h1
+            className={`text-sm font-semibold sm:text-base truncate ${
+              isDark ? "text-gray-100" : "text-gray-900"
+            }`}
+          >
             Activity Builder
           </h1>
+        </div>
+
+        {/* 우측 영역 – 다크모드 토글 */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleDarkMode}
+            aria-label="Toggle dark mode"
+            className={`
+        p-2 rounded-full transition-all
+        ${
+          isDark
+            ? "text-yellow-300 hover:bg-gray-700"
+            : "text-gray-600 hover:bg-gray-100"
+        }
+        focus:outline-none focus:ring-2 focus:ring-blue-500
+      `}
+          >
+            {isDark ? "☀️" : "🌙"}
+          </button>
         </div>
       </header>
       <div className="relative md:flex">
         <ActivitySidebar
-          isDark={isDark}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           currentStep={step}
@@ -169,20 +165,8 @@ export function ActivityBuilder({ isDark }: ActivityBuilderProps) {
           }}
         />
         <main className="flex-1 p-4 sm:p-6">
-          <div className="mx-auto w-full max-w-3xl">
-            {step !== "3-1" && (
-              <Badge
-                className={`
-                  ${impactBadge.color}
-                  flex items-center gap-1
-                  text-xs sm:text-sm
-                  mb-6
-                `}
-              >
-                {impactBadge.label}
-                <span className="font-semibold">{impactScore}</span>
-              </Badge>
-            )}
+          <div className="mx-auto w-full max-w-3xl flex flex-col gap-4">
+            {step !== "3-1" && <ImpactBadge impactScore={impactScore} />}
 
             {stepContent}
           </div>

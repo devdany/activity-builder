@@ -1,7 +1,7 @@
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 import { Button } from "./ui/button";
 
 interface ActivityStepActionsProps {
-  isDark: boolean;
   backDisabled?: boolean;
   continueDisabled?: boolean;
   onClickBack?: () => void;
@@ -10,13 +10,13 @@ interface ActivityStepActionsProps {
 }
 
 export function ActivityStepActions({
-  isDark,
   backDisabled = false,
   continueDisabled = false,
   onClickBack,
   onClickContinue,
   continueButtonText = "Continue",
 }: ActivityStepActionsProps) {
+  const { isDark } = useDarkMode();
   return (
     <div className="flex justify-between items-center mt-8">
       <Button

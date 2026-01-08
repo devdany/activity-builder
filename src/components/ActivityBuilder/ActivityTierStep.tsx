@@ -14,16 +14,16 @@ import {
   ACTIVITY_TIERS,
   type ActivityTier,
 } from "@/contexts/activity-builder/types";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 export function ActivityTierStep({
-  isDark,
   onClickContinue,
   onClickBack,
 }: {
-  isDark: boolean;
   onClickContinue: () => void;
   onClickBack: () => void;
 }) {
+  const { isDark } = useDarkMode();
   const { draft, setDraftTier } = useActivityBuilder();
   const [tier, setTier] = useState<ActivityTier | null>(draft.tier);
 
@@ -104,7 +104,6 @@ export function ActivityTierStep({
       </Card>
 
       <ActivityStepActions
-        isDark={isDark}
         continueDisabled={!canContinue}
         onClickContinue={() => {
           if (tier) {

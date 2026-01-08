@@ -1,10 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { ActivityEditModal } from "./ActivityEditModal";
+import { ImpactBadge } from "../ImpactBadge";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 export interface ActivitySummaryItem {
   id: string;
@@ -17,11 +18,8 @@ export interface ActivitySummaryItem {
   impactScore: number;
 }
 
-interface ActivitySummaryStepProps {
-  isDark: boolean;
-}
-
-export function ActivitySummaryStep({ isDark }: ActivitySummaryStepProps) {
+export function ActivitySummaryStep() {
+  const { isDark } = useDarkMode();
   const [activities, setActivities] = useState<ActivitySummaryItem[]>([]);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const [editingActivity, setEditingActivity] =
@@ -54,14 +52,19 @@ export function ActivitySummaryStep({ isDark }: ActivitySummaryStepProps) {
     };
   }, []);
 
+  const REMOVE_ANIMATION_MS = 300;
+
   async function handleDelete(id: string) {
     setRemovingIds((prev) => new Set(prev).add(id));
 
+    // Layout reflow가 좀 있긴하지만, 굳이 라이브러리 사용안하고 css transition으로 이 정도 구현선에서 마무리함.
     setTimeout(async () => {
       try {
         await api.delete(`/activities/${id}`);
 
-        setActivities((prev) => prev.filter((a) => a.id !== id));
+        requestAnimationFrame(() => {
+          setActivities((prev) => prev.filter((a) => a.id !== id));
+        });
       } catch (e) {
         console.error(e);
         alert("Failed to delete activity.");
@@ -72,7 +75,7 @@ export function ActivitySummaryStep({ isDark }: ActivitySummaryStepProps) {
           return next;
         });
       }
-    }, 300);
+    }, REMOVE_ANIMATION_MS);
   }
 
   if (isLoading) {
@@ -117,15 +120,14 @@ export function ActivitySummaryStep({ isDark }: ActivitySummaryStepProps) {
             <Card
               key={activity.id}
               className={`
-              rounded-2xl border
-              transition-all duration-300 ease-in-out
-              ${
-                isRemoving
-                  ? "opacity-0 -translate-y-2 scale-95"
-                  : "opacity-100 translate-y-0 scale-100"
-              }
-              ${isDark ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}
-            `}
+                rounded-2xl border
+                overflow-hidden
+                transition-all duration-300 ease-out
+                ${
+                  isRemoving ? "opacity-0 max-h-0" : "opacity-100 max-h-[200px]"
+                }
+                ${isDark ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}
+              `}
             >
               <div className="px-4 py-4 space-y-3">
                 <div className="flex items-center justify-between gap-4">
@@ -153,19 +155,7 @@ export function ActivitySummaryStep({ isDark }: ActivitySummaryStepProps) {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Badge
-                      className={
-                        activity.impactScore >= 7
-                          ? "bg-purple-100 text-purple-700"
-                          : activity.impactScore >= 5
-                            ? "bg-green-100 text-green-700"
-                            : activity.impactScore >= 3
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-gray-100 text-gray-700"
-                      }
-                    >
-                      Impact {activity.impactScore}
-                    </Badge>
+                    <ImpactBadge impactScore={activity.impactScore} />
 
                     <Button
                       size="icon"
@@ -212,7 +202,6 @@ export function ActivitySummaryStep({ isDark }: ActivitySummaryStepProps) {
 
       {editingActivity && (
         <ActivityEditModal
-          isDark={isDark}
           activity={editingActivity}
           onClose={() => setEditingActivity(null)}
           onSaved={(updated) => {

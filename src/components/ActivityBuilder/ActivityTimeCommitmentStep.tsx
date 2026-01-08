@@ -8,23 +8,23 @@ import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuild
 
 import type { ActivityBuilderStepKey } from "@/ActivityBuilder.types";
 import { api } from "@/lib/api";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 export function ActivityTimeCommitmentStep({
-  isDark,
   onSubmitSuccess,
   onSubmitFail,
   onClickBack,
 }: {
-  isDark: boolean;
   onSubmitSuccess: () => void;
   onSubmitFail: (step: ActivityBuilderStepKey) => void;
   onClickBack: () => void;
 }) {
+  const { isDark } = useDarkMode();
   const { draft, setDraftHoursPerWeek, setDraftIsLeadership, reset } =
     useActivityBuilder();
 
   const [hoursPerWeek, setHoursPerWeek] = useState(
-    draft.hoursPerWeek === null ? "" : String(draft.hoursPerWeek)
+    !draft.hoursPerWeek ? "" : String(draft.hoursPerWeek)
   );
   const [isLeadership, setIsLeadership] = useState(draft.isLeadership);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -136,7 +136,7 @@ export function ActivityTimeCommitmentStep({
             </label>
 
             <Input
-              value={hoursPerWeek}
+              value={hoursPerWeek ? hoursPerWeek : ""}
               onChange={(e) => {
                 const raw = e.target.value;
                 if (raw === "") return setHoursPerWeek("");
@@ -199,7 +199,6 @@ export function ActivityTimeCommitmentStep({
       </Card>
 
       <ActivityStepActions
-        isDark={isDark}
         continueDisabled={!canSubmit || isSubmitting}
         continueButtonText="Submit"
         onClickContinue={handleSubmit}

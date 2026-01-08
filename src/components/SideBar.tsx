@@ -5,6 +5,7 @@ import type {
 } from "@/ActivityBuilder.types";
 import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuilder";
 import type { ActivityDraft } from "@/contexts/activity-builder/context";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 function isStepCompleted(
   step: ActivityBuilderStepKey,
@@ -68,7 +69,6 @@ const STEP_DEFS: Omit<ActivityBuilderStep, "enabled">[] = [
 ];
 
 interface ActivitySidebarProps {
-  isDark: boolean;
   isOpen: boolean;
   onClose: () => void;
   currentStep?: ActivityBuilderStepKey;
@@ -76,13 +76,13 @@ interface ActivitySidebarProps {
 }
 
 export function ActivitySidebar({
-  isDark,
   isOpen,
   onClose,
   currentStep,
   onStepClick,
 }: ActivitySidebarProps) {
   const { draft } = useActivityBuilder();
+  const { isDark } = useDarkMode();
 
   const steps = useMemo<ActivityBuilderStep[]>(() => {
     return STEP_DEFS.map((stepDef, index) => {

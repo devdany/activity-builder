@@ -14,18 +14,17 @@ import {
   type ActivityCategory,
 } from "@/contexts/activity-builder/types";
 import { useState } from "react";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 export function ActivityCategoryStep({
-  isDark,
   onClickContinue,
   onClickBack,
 }: {
-  isDark: boolean;
   onClickContinue: () => void;
   onClickBack: () => void;
 }) {
   const { draft, setDraftCategory } = useActivityBuilder();
-
+  const { isDark } = useDarkMode();
   const [category, setCategory] = useState<ActivityCategory | null>(
     draft.category
   );
@@ -125,7 +124,6 @@ export function ActivityCategoryStep({
       </Card>
 
       <ActivityStepActions
-        isDark={isDark}
         continueDisabled={!canContinue}
         onClickContinue={() => {
           if (category) {

@@ -4,7 +4,7 @@ import { ActivityBuilderProvider } from "./contexts/activity-builder/provider";
 function App() {
   return (
     <ActivityBuilderProvider>
-      <ActivityBuilder isDark />
+      <ActivityBuilder />
     </ActivityBuilderProvider>
   );
 }

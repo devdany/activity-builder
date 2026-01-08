@@ -5,19 +5,19 @@ import { Button } from "@/components/ui/button";
 import { PenTool, Lightbulb, CircleCheck } from "lucide-react";
 import { ActivityStepActions } from "@/components/NavigationButtons";
 import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuilder";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 const MAX_DESC_LENGTH = 150;
 
 export function ActivityDescriptionStep({
-  isDark,
   onClickContinue,
   onClickBack,
 }: {
-  isDark: boolean;
   onClickContinue: () => void;
   onClickBack: () => void;
 }) {
   const { draft, setDraftDescription } = useActivityBuilder();
+  const { isDark } = useDarkMode();
   const [description, setDescription] = useState<string>(draft.description);
 
   const length = description.length;
@@ -193,7 +193,6 @@ export function ActivityDescriptionStep({
       </Card>
 
       <ActivityStepActions
-        isDark={isDark}
         continueDisabled={!canContinue}
         onClickContinue={() => {
           setDraftDescription(description);

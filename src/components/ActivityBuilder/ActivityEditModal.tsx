@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 import { api } from "@/lib/api";
 import type { ActivitySummaryItem } from "./ActivitySummaryStep";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 const MAX_DESC_LENGTH = 150;
 
@@ -34,18 +35,13 @@ const CATEGORIES = [
 const TIERS = ["School", "Regional", "State", "National", "International"];
 
 interface Props {
-  isDark: boolean;
   activity: ActivitySummaryItem;
   onClose: () => void;
   onSaved: (updated: ActivitySummaryItem) => void;
 }
 
-export function ActivityEditModal({
-  isDark,
-  activity,
-  onClose,
-  onSaved,
-}: Props) {
+export function ActivityEditModal({ activity, onClose, onSaved }: Props) {
+  const { isDark } = useDarkMode();
   const [draft, setDraft] = useState<ActivitySummaryItem>(activity);
   const [hoursPerWeekInput, setHoursPerWeekInput] = useState(
     String(activity.hoursPerWeek)

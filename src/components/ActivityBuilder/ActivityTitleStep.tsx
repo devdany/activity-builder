@@ -4,16 +4,16 @@ import { Disc2, Lightbulb } from "lucide-react";
 import { ActivityStepActions } from "@/components/NavigationButtons";
 import { useActivityBuilder } from "@/contexts/activity-builder/useActivityBuilder";
 import { useState } from "react";
+import { useDarkMode } from "@/contexts/darkmode/useDarkMode";
 
 export function ActivityTitleStep({
-  isDark,
   onClickContinue,
   onClickBack,
 }: {
-  isDark: boolean;
   onClickContinue: () => void;
   onClickBack?: () => void;
 }) {
+  const { isDark } = useDarkMode();
   const { draft, setDraftName } = useActivityBuilder();
   const [name, setName] = useState<string>(draft.name);
 
@@ -64,7 +64,6 @@ export function ActivityTitleStep({
       </Card>
 
       <ActivityStepActions
-        isDark={isDark}
         continueDisabled={!canContinue}
         onClickContinue={() => {
           setDraftName(name);
